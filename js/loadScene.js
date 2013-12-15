@@ -102,8 +102,16 @@ require([
 				document.body.appendChild(goo.renderer.domElement);
 
 				// Application code goes here!
-				new ImageLoader(['res/img1.bmp', 'res/img2.bmp'], function(images) {
-					Game.init(goo, images);
+				var imagePaths = [
+					'p1_1',
+					'p2_1',
+					'p3_1',
+					'p3_2',
+					'p4_1'
+				];
+
+				new ImageLoader('res/', imagePaths, function(imagesByPath) {
+					Game.init(goo, imagesByPath);
 
 					// Start the rendering loop!
 					goo.startGameLoop();

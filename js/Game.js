@@ -14,32 +14,22 @@ define([
 	'use strict';
 
 	var goo;
-	var images;
+	var imagesByName;
 	var cubes;
 	var stateHandler;
 	var level;
+	var anims;
 
 	var mouseState = { x: null, y: null };
 	var valueState = { x: 300, y: 300 };
 	var targetState = { x: 200, y: 200 };
 	var delta = { x: 0, y: 0 };
 
-	function pattern1(n) {
+	function pattern() {
 		cubes = [];
-		for (var i = 0; i < n; i++) {
-			for (var j = 0; j < n; j++) {
-				cubes.push(new Cube(
-					goo,
-					{ x: i - n/2, y: j - n/2 },
-					{ r: Math.sin(i) / 2 + 0.5, g: Math.sin(j) / 2 + 0.5, b: Math.sin(i + j) / 2 + 0.5 }
-				));
-			}
-		}
-	}
-
-	function pattern2() {
-		cubes = [];
-		var image = images[level];
+		var anim = anims[level];
+		var firstFrame = anim[0];
+		var image = imagesByName[firstFrame];
 		image.pixels.forEach(function (pixel) {
 			cubes.push(new Cube(
 				goo,
@@ -47,6 +37,18 @@ define([
 				{ r: pixel.r / 255, g: pixel.g / 255, b: pixel.b / 255 }
 			));
 		});
+	}
+
+	function setFrame(n) {
+		var anim = anims[level];
+		var frame = anim[n];
+		var image = imagesByName[frame];
+		var pixels = image.pixels;
+
+		for (var i = 0; i < cubes.length; i++) {
+			var pixel = pixels[i];
+			cubes[i].setColor(pixel.r / 255, pixel.g / 255, pixel.b / 255);
+		}
 	}
 
 	function removeAll() {
@@ -96,7 +98,7 @@ define([
 			});
 
 			if (closeEnough()) {
-				setState('fadeaway');
+				setState('animating');
 			}
 		},
 		fadeaway: function(tpf) {
@@ -116,11 +118,11 @@ define([
 			console.log('fadein');
 
 			level = level || 0;
-			if (level >= images.length) {
+			if (level >= anims.length) {
 				setState('nop');
 				return;
 			}
-			pattern2();
+			pattern();
 
 			generateRandomTarget();
 
@@ -136,6 +138,23 @@ define([
 				cube.fadeIn(callback);
 			});
 			setState('nop');
+		},
+		animating: function(tpf) {
+			var currentFrame = 0;
+			var anim = anims[level];
+			var totalFrames = anim.length;
+
+			function loop() {
+				currentFrame++;
+				if (currentFrame >= totalFrames) {
+					setState('fadeaway');
+					return;
+				}
+				setFrame(currentFrame);
+				setTimeout(loop, 500);
+			}
+			setState('nop');
+			loop();
 		},
 		nop: function(tpf) { }
 	};
@@ -167,8 +186,11 @@ define([
 		cameraEntity.addToWorld();
 	}
 
-	function processImages(images) {
-		return images.map(function (image) {
+	function processImages(namedImages) {
+		var imagesByName = {};
+
+		namedImages.forEach(function (namedImage) {
+			var image = namedImage.image;
 			var converted = [];
 
 			var canvas = document.createElement('canvas');
@@ -180,7 +202,7 @@ define([
 
 			var buffer = con2d.getImageData(0, 0, image.width, image.height).data;
 			for (var i = 0, p = 0; i < buffer.length; i += 4, p++) {
-				// filtering out magenta
+				// filtering out magenta // or not
 				if (buffer[i] !== 255 || buffer[i + 1] !== 0 || buffer[i + 2] !== 255) {
 					converted.push({
 						x: p % image.width,
@@ -192,16 +214,29 @@ define([
 				}
 			}
 
-			return { pixels: converted, width: image.width, height: image.height };
+			imagesByName[namedImage.name] = { pixels: converted, width: image.width, height: image.height };
 		});
+		return imagesByName;
+	}
+
+	function setAnims() {
+		anims = [
+
+			['p3_1', 'p3_2'],
+
+			['p1_1'],
+			['p2_1'],
+
+			['p4_1']
+		];
 	}
 
 	var Game = {};
 
-	Game.init = function(_goo, _images) {
+	Game.init = function(_goo, _namedImages) {
 		goo = _goo;
-		images = processImages(_images);
-
+		imagesByName = processImages(_namedImages);
+		setAnims();
 		setState('beginning');
 		setupCamera();
 		setupMouse();
