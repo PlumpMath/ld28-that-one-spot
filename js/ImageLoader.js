@@ -2,15 +2,15 @@ define(['js/All'],
 function(All) {
 	'use strict';
 
-	function ImageLoader(imagePaths, onComplete) {
-		var all = new All(imagePaths.length, function() { onComplete(images); });
+	function ImageLoader(basePath, imageNames, onComplete) {
+		var all = new All(imageNames.length, function() { onComplete(namedImages); });
 		var callback = all.getCallback();
 
-		var images = imagePaths.map(function (imagePath) {
+		var namedImages = imageNames.map(function (imageName) {
 			var image = new Image();
-			image.src = imagePath;
+			image.src = basePath + imageName + '.png'; // assuming they're always pngs
 			image.onload = callback;
-			return image;
+			return { name: imageName, image: image };
 		});
 	}
 

@@ -54,6 +54,10 @@ define([
 		return material;
 	}
 
+	Cube.prototype.setColor = function(r, g, b) {
+		this.material.materialState.diffuse = [r, g, b, 1];
+	};
+
 	Cube.prototype.fadeAway = function(callback) {
 		var entity = this.entity;
 		var tween = new TWEEN.Tween( { z: 0, s: 1 } )
