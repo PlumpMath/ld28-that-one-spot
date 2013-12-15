@@ -91,7 +91,7 @@ define([
 		var entity = this.entity;
 		var tween = new TWEEN.Tween( { s: 0 } )
         	.to( { s: 1 }, 2000 )
-        	.delay(Math.random() * 800 + 100)
+        	.delay(Math.random() * 800 + 400)
             .easing( TWEEN.Easing.Cubic.InOut )
             .onUpdate( function () {
             	entity.transformComponent.transform.scale.setd(this.s, this.s, this.s);
