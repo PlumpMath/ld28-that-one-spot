@@ -13,18 +13,26 @@ define([
 
 	var meshData = ShapeCreator.createBox();
 
+	function ran(s, e) {
+		return Math.random() * (e - s) + s;
+	}
+
 	function Cube(goo, ownPosition, color) {
 		this.material = getColMat(color.r, color.g, color.b);
 		this.entity = EntityUtils.createTypicalEntity(goo.world, meshData, this.material, [ownPosition.x, ownPosition.y, 0]);
+		this.updateVisibility(color.r, color.g, color.b);
 		this.entity.transformComponent.transform.scale.setd(0, 0, 0);
 		this.entity.addToWorld();
 
 		this.ownPosition = ownPosition;
 
 		var pars = {
-			p1: Math.random() + 1,
-			p2: Math.random() + 1,
-			p3: Math.random() + 1
+			p1: ran(1, 2),
+			p2: ran(1, 2),
+			p3: ran(1, 2),
+			p4: ran(200, 400),
+			p5: ran(200, 400),
+			p6: ran(200, 400)
 		};
 		this.displace = getDisplacementFunction('sine', pars).bind(this);
 	}
@@ -33,9 +41,9 @@ define([
 		switch (type) {
 			case 'sine':
 				return function(delta) {
-					var dx = Math.sin(delta.x / 300) * 10 * pars.p1;
-					var dy = Math.sin(delta.y / 300) * 10 * pars.p2;
-					var dz = Math.sin(delta.x / 300) * 10 * pars.p3;
+					var dx = Math.sin(delta.x / pars.p4) * 10 * pars.p1;
+					var dy = Math.sin(delta.y / pars.p5) * 5 * pars.p2;
+					var dz = Math.sin(delta.x / pars.p6) * 3 * pars.p3;
 
 					this.entity.transformComponent.transform.translation.setd(
 						this.ownPosition.x + dx,
@@ -54,7 +62,12 @@ define([
 		return material;
 	}
 
+	Cube.prototype.updateVisibility = function(r, g, b) {
+		this.entity.meshRendererComponent.hidden = r === 1 && g === 0 && b === 1;
+	};
+
 	Cube.prototype.setColor = function(r, g, b) {
+		this.updateVisibility(r, g, b);
 		this.material.materialState.diffuse = [r, g, b, 1];
 	};
 
@@ -66,8 +79,8 @@ define([
             .easing( TWEEN.Easing.Cubic.InOut )
             .onUpdate( function () {
             	entity.transformComponent.transform.translation.data[2] = this.z;
-
             	entity.transformComponent.transform.scale.setd(this.s, this.s, this.s);
+
             	entity.transformComponent.setUpdated();
 			} )
 			.onComplete(callback)

@@ -98,8 +98,26 @@ define([
 			});
 
 			if (closeEnough()) {
-				setState('animating');
+				setState('finetuning');
 			}
+		},
+		finetuning: function(tpf) {
+			console.log('finetuning');
+
+			setState('nop');
+
+			var tween = new TWEEN.Tween( delta )
+	        	.to( { x: 0, y: 0 }, 1000 )
+	        	.delay(100)
+	            .easing( TWEEN.Easing.Cubic.Out )
+	            .onUpdate( function () {
+	            	var bogusDelta = { x: this.x, y: this.y };
+					cubes.forEach(function (cube) {
+						cube.displace(bogusDelta);
+					});
+				} )
+				.onComplete(function () { setState('animating'); })
+	            .start();
 		},
 		fadeaway: function(tpf) {
 			console.log('fadeaway');
@@ -203,7 +221,7 @@ define([
 			var buffer = con2d.getImageData(0, 0, image.width, image.height).data;
 			for (var i = 0, p = 0; i < buffer.length; i += 4, p++) {
 				// filtering out magenta // or not
-				if (buffer[i] !== 255 || buffer[i + 1] !== 0 || buffer[i + 2] !== 255) {
+				//if (buffer[i] !== 255 || buffer[i + 1] !== 0 || buffer[i + 2] !== 255) {
 					converted.push({
 						x: p % image.width,
 						y: image.height - Math.floor(p / image.width),
@@ -211,7 +229,7 @@ define([
 						g: buffer[i + 1],
 						b: buffer[i + 2]
 					});
-				}
+				//}
 			}
 
 			imagesByName[namedImage.name] = { pixels: converted, width: image.width, height: image.height };
@@ -221,8 +239,7 @@ define([
 
 	function setAnims() {
 		anims = [
-
-			['p3_1', 'p3_2'],
+			['p3_1', 'p3_2', 'p3_1', 'p3_2'],
 
 			['p1_1'],
 			['p2_1'],
