@@ -98,8 +98,26 @@ define([
 			});
 
 			if (closeEnough()) {
-				setState('animating');
+				setState('finetuning');
 			}
+		},
+		finetuning: function(tpf) {
+			console.log('finetuning');
+
+			setState('nop');
+
+			var tween = new TWEEN.Tween( delta )
+	        	.to( { x: 0, y: 0 }, 1000 )
+	        	.delay(100)
+	            .easing( TWEEN.Easing.Cubic.Out )
+	            .onUpdate( function () {
+	            	var bogusDelta = { x: this.x, y: this.y };
+					cubes.forEach(function (cube) {
+						cube.displace(bogusDelta);
+					});
+				} )
+				.onComplete(function () { setState('animating'); })
+	            .start();
 		},
 		fadeaway: function(tpf) {
 			console.log('fadeaway');
