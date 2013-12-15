@@ -96,26 +96,39 @@ require([
 				progressCallback: progressCallback});
 
 			loader.loadFromBundle('project.project', 'root.bundle', {recursive: false, preloadBinaries: true}).then(function(configs) {
-
-				// This code will be called when the project has finished loading.
-				goo.renderer.domElement.id = 'goo';
-				document.body.appendChild(goo.renderer.domElement);
-
 				// Application code goes here!
-				var imagePaths = [
-					'p1_1',
-					'p2_1',
-					'p3_1',
-					'p3_2',
-					'p4_1'
-				];
+				var started = false;
 
-				new ImageLoader('res/', imagePaths, function(imagesByPath) {
-					Game.init(goo, imagesByPath);
-
-					// Start the rendering loop!
-					goo.startGameLoop();
+				document.addEventListener('click', function() {
+					start();
 				});
+
+				function start() {
+					if (started) { return; }
+					started = true;
+
+					goo.renderer.setClearColor(1, 1, 1, 1);
+
+					var imagePaths = [
+						'p1_1',
+						'p2_1',
+						'p3_1',
+						'p3_2',
+						'p4_1'
+					];
+
+					new ImageLoader('res/', imagePaths, function(imagesByPath) {
+						Game.init(goo, imagesByPath);
+
+						// Start the rendering loop!
+						goo.startGameLoop();
+
+
+						// adding this so late to give the renderer a chance to clear that ugly default black background
+						goo.renderer.domElement.id = 'goo';
+						document.body.appendChild(goo.renderer.domElement);
+					});
+				}
 
 			}).then(null, function(e) {
 				// If something goes wrong, 'e' is the error message from the engine.

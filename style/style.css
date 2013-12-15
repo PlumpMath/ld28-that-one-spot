@@ -1,6 +1,6 @@
 body {
-	background: black;
-	font-family: Helvetica;
+	background: white;
+	font-family: Verdana, Geneva, sans-serif;
 }
 
 #goo {
@@ -16,18 +16,16 @@ body {
 
 div#loadingOverlay {
 	margin: auto;
-	font-family: sans-serif;
 	width: 400px;
 	height: 400px;
-	text-align: center;
+	text-align: justify;
 	position: absolute;
 	bottom: 0px; top: 0px;
 	right: 0px; left: 0px;
 }
 
 div#loadingMessage h2{
-	color: #fff;
-	text-transform: uppercase;
+	color: #020931;
 	font-weight: 400;
 }
 
@@ -36,6 +34,7 @@ div#progressBar {
 	margin:auto;
 	background:#555;
 	height:2px;
+	display: none;
 }
 
 div#progress {
